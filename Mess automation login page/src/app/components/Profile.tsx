@@ -63,6 +63,10 @@ export function Profile() {
   }, []);
 
   const handleSaveProfile = async () => {
+    if (editData.phone && !/^\d{10}$/.test(editData.phone)) {
+      alert("Phone number must be exactly 10 digits");
+      return;
+    }
     try {
       setIsSaving(true);
       const token = localStorage.getItem('token');

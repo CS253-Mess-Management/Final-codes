@@ -25,6 +25,10 @@ exports.registerStudent = async (req, res) => {
       return res.status(400).json({ error: "Use IITK email" });
     }
 
+    if (phone && !/^\d{10}$/.test(phone)) {
+      return res.status(400).json({ error: "Phone number must be exactly 10 digits" });
+    }
+
     const existing = await Student.findOne({ where: { rollNo } });
     if (existing && existing.status !== "Rejected") {
       return res.status(400).json({ error: "Student already exists" });
@@ -287,6 +291,11 @@ exports.updateProfile = async (req, res) => {
     }
 
     const { name, roomNo, phone } = req.body;
+    
+    if (phone && !/^\d{10}$/.test(phone)) {
+      return res.status(400).json({ error: "Phone number must be exactly 10 digits" });
+    }
+
     const student = await Student.findByPk(req.user.rollNo);
 
     if (!student) {

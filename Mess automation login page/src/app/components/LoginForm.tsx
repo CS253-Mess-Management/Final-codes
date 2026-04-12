@@ -122,6 +122,10 @@ export function LoginForm() {
 
   const handleRegister = async () => {
     if (!showOtpInput) {
+      if (phone && !/^\d{10}$/.test(phone)) {
+        alert("Phone number must be exactly 10 digits");
+        return;
+      }
       // Step 1: Send registration details and get OTP
       try {
         const response = await fetch(`${API_HOST}/api/auth/register`, {

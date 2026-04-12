@@ -53,10 +53,33 @@ export function PollManagement() {
     setIsCreating(true);
     try {
       const token = localStorage.getItem('token');
+      if (!newTitle.trim()) {
+        alert("Poll title is required.");
+        setIsCreating(false);
+        return;
+      }
+
       const options: Record<string, string[]> = {};
-      if (newBreakfast.trim()) options.Breakfast = newBreakfast.split('\n').map(s => s.trim()).filter(Boolean);
-      if (newLunch.trim()) options.Lunch = newLunch.split('\n').map(s => s.trim()).filter(Boolean);
-      if (newDinner.trim()) options.Dinner = newDinner.split('\n').map(s => s.trim()).filter(Boolean);
+      let hasOptions = false;
+
+      if (newBreakfast.trim()) {
+        const parsed = newBreakfast.split('\n').map(s => s.trim()).filter(Boolean);
+        if (parsed.length > 0) { options.Breakfast = parsed; hasOptions = true; }
+      }
+      if (newLunch.trim()) {
+        const parsed = newLunch.split('\n').map(s => s.trim()).filter(Boolean);
+        if (parsed.length > 0) { options.Lunch = parsed; hasOptions = true; }
+      }
+      if (newDinner.trim()) {
+        const parsed = newDinner.split('\n').map(s => s.trim()).filter(Boolean);
+        if (parsed.length > 0) { options.Dinner = parsed; hasOptions = true; }
+      }
+
+      if (!hasOptions) {
+        alert("At least one poll option is required (Breakfast, Lunch, or Dinner).");
+        setIsCreating(false);
+        return;
+      }
 
       const res = await fetch(`${API_HOST}/api/poll/create`, {
         method: 'POST',

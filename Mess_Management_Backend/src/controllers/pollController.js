@@ -13,6 +13,24 @@ exports.createPoll = async (req, res) => {
 
     const { title, description, options } = req.body;
 
+    if (!title || !title.trim()) {
+      return res.status(400).json({ error: "Poll title is required" });
+    }
+
+    let hasOptions = false;
+    if (options) {
+      for (const mealType in options) {
+        if (options[mealType] && options[mealType].length > 0) {
+          hasOptions = true;
+          break;
+        }
+      }
+    }
+
+    if (!hasOptions) {
+      return res.status(400).json({ error: "At least one poll option is required (Breakfast, Lunch, or Dinner)" });
+    }
+
     // Check if a similar active or scheduled poll already exists
     const existingPoll = await Poll.findOne({
       where: {

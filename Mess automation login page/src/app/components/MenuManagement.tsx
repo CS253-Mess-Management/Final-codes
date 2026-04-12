@@ -26,6 +26,7 @@ export function MenuManagement() {
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
   const [newItemCategory, setNewItemCategory] = useState('Snacks');
+  const [isAddingItem, setIsAddingItem] = useState(false);
 
   // BDMR State
   const [bdmr, setBdmr] = useState('70');
@@ -456,18 +457,36 @@ export function MenuManagement() {
               </div>
               <button 
                 onClick={async () => {
-                    const token = localStorage.getItem('token');
-                    await fetch(`${API_HOST}/api/extras/add`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                        body: JSON.stringify({ name: newItemName, price: newItemPrice, mealType: newItemCategory, day: 'All' })
-                    });
-                    fetchExtras();
-                    setShowAddItemForm(false);
+                    if (isAddingItem) return;
+                    setIsAddingItem(true);
+                    try {
+                      const token = localStorage.getItem('token');
+                      const res = await fetch(`${API_HOST}/api/extras/add`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                          body: JSON.stringify({ name: newItemName, price: newItemPrice, mealType: newItemCategory, day: 'All' })
+                      });
+                      if (res.ok) {
+                          fetchExtras();
+                          setShowAddItemForm(false);
+                          setNewItemName('');
+                          setNewItemPrice('');
+                      } else {
+                          const err = await res.json();
+                          alert(err.error || 'Failed to add item');
+                      }
+                    } catch (err) {
+                      alert('Network error');
+                    } finally {
+                      setIsAddingItem(false);
+                    }
                 }}
-                className="px-6 py-2 bg-black text-white hover:bg-gray-800 transition-colors"
+                disabled={isAddingItem}
+                className={`px-6 py-2 text-white transition-colors ${
+                  isAddingItem ? 'bg-gray-500 cursor-not-allowed' : 'bg-black hover:bg-gray-800'
+                }`}
               >
-                Add to Inventory
+                {isAddingItem ? 'Adding...' : 'Add to Inventory'}
               </button>
             </div>
           )}
